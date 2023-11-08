@@ -45,6 +45,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -91,6 +92,7 @@ public class MongoResultSet implements ResultSet {
             MongoStatement statement,
             MongoCursor<BsonDocument> cursor,
             MongoJsonSchema schema,
+            ArrayList<ArrayList<String>> selectOrder,
             boolean extJsonMode)
             throws SQLException {
         Preconditions.checkNotNull(statement);
@@ -102,7 +104,7 @@ public class MongoResultSet implements ResultSet {
                         statement.getStatementId());
         this.extJsonMode = extJsonMode;
         setUpResultset(
-                cursor, schema, true, statement.getParentLogger(), statement.getStatementId());
+                cursor, schema, selectOrder, statement.getParentLogger(), statement.getStatementId());
     }
 
     /**
@@ -117,13 +119,13 @@ public class MongoResultSet implements ResultSet {
             MongoLogger parentLogger, MongoCursor<BsonDocument> cursor, MongoJsonSchema schema)
             throws SQLException {
         this.logger = new MongoLogger(this.getClass().getCanonicalName(), parentLogger);
-        setUpResultset(cursor, schema, false, parentLogger, null);
+        setUpResultset(cursor, schema, null, parentLogger, null);
     }
 
     private void setUpResultset(
             MongoCursor<BsonDocument> cursor,
             MongoJsonSchema schema,
-            boolean sortFieldsAlphabetically,
+            ArrayList<ArrayList<String>> selectOrder,
             MongoLogger parentLogger,
             Integer statementId)
             throws SQLException {
@@ -137,7 +139,7 @@ public class MongoResultSet implements ResultSet {
 
         this.rsMetaData =
                 new MongoResultSetMetaData(
-                        schema, sortFieldsAlphabetically, parentLogger, statementId);
+                        schema, selectOrder, parentLogger, statementId);
     }
 
     // This is only used for testing, and that is why it has package level access, and the

@@ -67,15 +67,13 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
      * Constructor.
      *
      * @param schema The resultset schema.
-     * @param sortFieldsAlphabetically Flag to set the fields sort order. True if fields must be
-     *     sorted alphabetically. False otherwise.
      * @param parentLogger The parent connection logger.
      * @param statementId The statement id for the logger or null if this resultset is not tied to a
      *     statement.
      */
     public MongoResultSetMetaData(
             MongoJsonSchema schema,
-            boolean sortFieldsAlphabetically,
+            ArrayList<ArrayList<String>> selectOrder,
             MongoLogger parentLogger,
             Integer statementId)
             throws SQLException {
@@ -95,7 +93,7 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
         Arrays.sort(datasources);
 
         for (String datasource : datasources) {
-            processDataSource(schema, datasource, sortFieldsAlphabetically);
+            processDataSource(schema, datasource);
         }
     }
 
@@ -108,15 +106,12 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
     }
 
     private void processDataSource(
-            MongoJsonSchema schema, String datasource, boolean sortFieldsAlphabetically)
+            MongoJsonSchema schema, String datasource)
             throws SQLException {
         MongoJsonSchema datasourceSchema = schema.properties.get(datasource);
         assertDatasourceSchema(datasourceSchema);
 
         String[] fields = datasourceSchema.properties.keySet().toArray(new String[0]);
-        if (sortFieldsAlphabetically) {
-            Arrays.sort(fields);
-        }
 
         for (String field : fields) {
             MongoJsonSchema columnSchema = datasourceSchema.properties.get(field);
