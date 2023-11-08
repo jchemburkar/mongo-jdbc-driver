@@ -17,9 +17,11 @@
 package com.mongodb.jdbc;
 
 import java.util.Map;
+import java.util.ArrayList;
 
 public class MongoJsonSchemaResult {
     public int ok;
     public Map<String, String> metadata;
     public MongoVersionedJsonSchema schema;
+    public ArrayList<ArrayList<String>> selectOrder;
 }
