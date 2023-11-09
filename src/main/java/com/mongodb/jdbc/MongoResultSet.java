@@ -104,7 +104,11 @@ public class MongoResultSet implements ResultSet {
                         statement.getStatementId());
         this.extJsonMode = extJsonMode;
         setUpResultset(
-                cursor, schema, selectOrder, statement.getParentLogger(), statement.getStatementId());
+                cursor,
+                schema,
+                selectOrder,
+                statement.getParentLogger(),
+                statement.getStatementId());
     }
 
     /**
@@ -138,8 +142,7 @@ public class MongoResultSet implements ResultSet {
         this.cursor = cursor;
 
         this.rsMetaData =
-                new MongoResultSetMetaData(
-                        schema, selectOrder, parentLogger, statementId);
+                new MongoResultSetMetaData(schema, selectOrder, parentLogger, statementId);
     }
 
     // This is only used for testing, and that is why it has package level access, and the
