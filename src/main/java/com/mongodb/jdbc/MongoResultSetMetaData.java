@@ -73,7 +73,7 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
      */
     public MongoResultSetMetaData(
             MongoJsonSchema schema,
-            ArrayList<ArrayList<String>> selectOrder,
+            List<List<String>> selectOrder,
             MongoLogger parentLogger,
             Integer statementId)
             throws SQLException {
@@ -92,11 +92,14 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
         String[] datasources = schema.properties.keySet().toArray(new String[0]);
         Arrays.sort(datasources);
 
+        // if there is no select order, default to sorting alphabetically
+        boolean sortFieldsAlphabetically = selectOrder != null;
         for (String datasource : datasources) {
-            processDataSource(schema, datasource);
+            processDataSource(schema, datasource, sortFieldsAlphabetically);
         }
 
-        if (selectOrder != null) {
+        // if there is a select order, reorder the columnIndices and columnInfo accordingly
+        if (sortFieldsAlphabetically) {
             processSelectOrder(selectOrder);
         }
     }
@@ -109,11 +112,14 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
         }
     }
 
-    private void processDataSource(MongoJsonSchema schema, String datasource) throws SQLException {
+    private void processDataSource(MongoJsonSchema schema, String datasource, boolean sortFieldsAlphabetically) throws SQLException {
         MongoJsonSchema datasourceSchema = schema.properties.get(datasource);
         assertDatasourceSchema(datasourceSchema);
 
         String[] fields = datasourceSchema.properties.keySet().toArray(new String[0]);
+        if (sortFieldsAlphabetically) {
+            Arrays.sort(fields);
+        }
 
         for (String field : fields) {
             MongoJsonSchema columnSchema = datasourceSchema.properties.get(field);
@@ -128,7 +134,7 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
         }
     };
 
-    private void processSelectOrder(ArrayList<ArrayList<String>> selectOrder) throws SQLException {
+    private void processSelectOrder(List<List<String>> selectOrder) throws SQLException {
         // turn columnIndices into a map
         HashMap<List<String>, NameSpace> columnIndexMap = new HashMap<List<String>, NameSpace>();
         for (NameSpace n : columnIndices) {
@@ -145,7 +151,7 @@ public class MongoResultSetMetaData implements ResultSetMetaData {
         // reset columnIndices and columnInfo to empty lists and populate in select order
         columnIndices = new ArrayList<NameSpace>();
         columnInfo = new ArrayList<MongoColumnInfo>();
-        for (ArrayList<String> column : selectOrder) {
+        for (List<String> column : selectOrder) {
             columnIndices.add(columnIndexMap.remove(column));
             columnInfo.add(columnInfoMap.remove(column));
         }

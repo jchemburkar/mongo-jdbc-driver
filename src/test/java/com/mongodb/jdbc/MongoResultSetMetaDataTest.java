@@ -21,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Arrays;
+import java.util.ArrayList;
 import org.bson.BsonValue;
+import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -38,7 +41,7 @@ class MongoResultSetMetaDataTest extends MongoMock {
         try {
             resultSetMetaData =
                     new MongoResultSetMetaData(
-                            generateMongoJsonSchema(), null, mongoConnection.getLogger(), 0);
+                            generateMongoJsonSchema(), selectOrder, mongoConnection.getLogger(), 0);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -62,11 +65,23 @@ class MongoResultSetMetaDataTest extends MongoMock {
                 new String[] {"a", "binary", "str", "a", "b", "c", "d", "doc", "null", "vec"};
         String[] expected_original_columns =
                 new String[] {"a", "binary", "str", "c", "a", "d", "b", "vec", "null", "doc"};
+        List<List<String>> selectOrder = Arrays.asList(
+            Arrays.asList("", "a"),
+            Arrays.asList("", "binary"),
+            Arrays.asList("", "str"),
+            Arrays.asList("foo", "a"),
+            Arrays.asList("foo", "b"),
+            Arrays.asList("foo", "c"),
+            Arrays.asList("foo", "d"),
+            Arrays.asList("foo", "doc"),
+            Arrays.asList("foo", "null"),
+            Arrays.asList("foo", "vec")
+        );
         MongoJsonSchema schema = generateMongoJsonSchema();
         MongoResultSetMetaData unsortedMedata =
                 new MongoResultSetMetaData(schema, null, mongoConnection.getLogger(), 0);
         MongoResultSetMetaData sortedMedata =
-                new MongoResultSetMetaData(schema, null, mongoConnection.getLogger(), 0);
+                new MongoResultSetMetaData(schema, selectOrder, mongoConnection.getLogger(), 0);
 
         assertEquals(
                 expected_original_columns.length,
@@ -75,7 +90,6 @@ class MongoResultSetMetaDataTest extends MongoMock {
         for (int i = 0; i < unsortedMedata.getColumnCount(); i++) {
             assertEquals(expected_original_columns[i], unsortedMedata.getColumnName(i + 1));
         }
-
         assertEquals(
                 expected_sorted_columns.length,
                 sortedMedata.getColumnCount(),

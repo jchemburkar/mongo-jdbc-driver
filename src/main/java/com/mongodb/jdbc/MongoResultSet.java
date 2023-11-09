@@ -45,8 +45,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
 import javax.sql.rowset.serial.SerialBlob;
@@ -92,7 +92,7 @@ public class MongoResultSet implements ResultSet {
             MongoStatement statement,
             MongoCursor<BsonDocument> cursor,
             MongoJsonSchema schema,
-            ArrayList<ArrayList<String>> selectOrder,
+            List<List<String>> selectOrder,
             boolean extJsonMode)
             throws SQLException {
         Preconditions.checkNotNull(statement);
@@ -129,7 +129,7 @@ public class MongoResultSet implements ResultSet {
     private void setUpResultset(
             MongoCursor<BsonDocument> cursor,
             MongoJsonSchema schema,
-            ArrayList<ArrayList<String>> selectOrder,
+            List<List<String>> selectOrder,
             MongoLogger parentLogger,
             Integer statementId)
             throws SQLException {
